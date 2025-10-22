@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Búsqueda de Patrones y Generador de Gramáticas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-bold mb-3 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                Búsqueda de Patrones y Generador de Gramáticas
+            </h1>
+            <p class="text-zinc-400 text-lg">Herramienta de expresiones regulares y generación de texto</p>
+        </header>
+
+        <div class="flex gap-4 mb-8 border-b border-zinc-800">
+            <button id="tab-regex" class="tab-button active px-6 py-3 font-semibold transition-colors">
+                Búsqueda RegEx
+            </button>
+            <button id="tab-grammar" class="tab-button px-6 py-3 font-semibold transition-colors">
+                Generador de Gramáticas
+            </button>
+        </div>
+
+        <div id="regex-section" class="section active">
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400">Entrada de Texto</h2>
+                        
+                        <div class="flex gap-2 mb-4">
+                            <button id="mode-text" class="mode-button active flex-1 px-4 py-2 rounded-lg font-medium transition-colors">
+                                Texto Directo
+                            </button>
+                            <button id="mode-file" class="mode-button flex-1 px-4 py-2 rounded-lg font-medium transition-colors">
+                                Archivo
+                            </button>
+                            <button id="mode-url" class="mode-button flex-1 px-4 py-2 rounded-lg font-medium transition-colors">
+                                URL
+                            </button>
+                        </div>
+
+                        <div id="input-text" class="input-mode">
+                            <textarea id="text-input" rows="10" placeholder="Ingresa tu texto aquí..." 
+                                class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-mono text-sm"></textarea>
+                        </div>
+
+                        <div id="input-file" class="input-mode hidden">
+                            <input type="file" id="file-input" accept=".txt" 
+                                class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-cyan-600 file:text-white file:cursor-pointer hover:file:bg-cyan-700">
+                        </div>
+
+                        <div id="input-url" class="input-mode hidden">
+                            <input type="url" id="url-input" placeholder="https://ejemplo.com/archivo.txt" 
+                                class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 mb-3">
+                            <button id="load-url" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 rounded-lg transition-colors">
+                                Cargar desde URL
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400">Expresión Regular</h2>
+                        
+                        <input type="text" id="regex-input" placeholder="Ingresa tu expresión regular" 
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-mono mb-4">
+                        
+                        <div class="flex gap-4 mb-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="flag-i" class="w-4 h-4 rounded bg-zinc-800 border-zinc-700 text-cyan-600 focus:ring-cyan-500">
+                                <span class="text-sm">Ignorar mayúsculas (i)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="flag-g" checked class="w-4 h-4 rounded bg-zinc-800 border-zinc-700 text-cyan-600 focus:ring-cyan-500">
+                                <span class="text-sm">Global (g)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="flag-m" class="w-4 h-4 rounded bg-zinc-800 border-zinc-700 text-cyan-600 focus:ring-cyan-500">
+                                <span class="text-sm">Multilínea (m)</span>
+                            </label>
+                        </div>
+
+                        <button id="search-button" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold py-3 rounded-lg transition-all">
+                            Buscar Coincidencias
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400">Resultados</h2>
+                        <div id="stats" class="mb-4 p-4 bg-zinc-800 rounded-lg hidden">
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <div>
+                                    <div class="text-3xl font-bold text-cyan-400" id="match-count">0</div>
+                                    <div class="text-sm text-zinc-400">Coincidencias</div>
+                                </div>
+                                <div>
+                                    <div class="text-3xl font-bold text-blue-400" id="line-count">0</div>
+                                    <div class="text-sm text-zinc-400">Líneas afectadas</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="results" class="space-y-3 max-h-[600px] overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="grammar-section" class="section hidden">
+            <div class="grid lg:grid-cols-2 gap-8">
+                <div class="space-y-6">
+                    <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                        <h2 class="text-2xl font-bold mb-4 text-cyan-400">Seleccionar Gramática</h2>
+                        
+                        <select id="grammar-select" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 mb-4">
+                            <option value="password">Contraseñas Seguras</option>
+                            <option value="email">Correos Electrónicos</option>
+                            <option value="address">Direcciones</option>
+                            <option value="phone">Números de Teléfono</option>
+                            <option value="username">Nombres de Usuario</option>
+                            <option value="url">URLs</option>
+                            <option value="plate">Placas de Vehículos</option>
+                        </select>
+
+                        <div id="grammar-description" class="mb-4 p-4 bg-zinc-800 rounded-lg text-sm text-zinc-300"></div>
+
+                        <label class="block mb-2 text-sm font-medium">Cantidad a generar</label>
+                        <input type="number" id="generate-count" value="5" min="1" max="50" 
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-4 text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 mb-4">
+
+                        <button id="generate-button" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold py-3 rounded-lg transition-all">
+                            Generar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-zinc-900 rounded-lg p-6 border border-zinc-800">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold text-cyan-400">Resultados Generados</h2>
+                            <button id="copy-all" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-sm font-medium transition-colors hidden">
+                                Copiar Todo
+                            </button>
+                        </div>
+                        <div id="generated-results" class="space-y-2 max-h-[600px] overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
